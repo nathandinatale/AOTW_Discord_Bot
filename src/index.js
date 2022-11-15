@@ -12,6 +12,7 @@ import albumCommand, {
   handleAlbumCommand,
   handleAlbumRating,
 } from "./commands/album.js";
+import pingCommand, { handlePingCommand } from "./commands/ping.js";
 
 config();
 
@@ -35,9 +36,11 @@ client.login(TOKEN);
 
 client.on(Events.InteractionCreate, async (interaction) => {
   if (!interaction.isChatInputCommand()) return;
-
   if (interaction.commandName === "album") {
     handleAlbumCommand(interaction);
+  }
+  if (interaction.commandName == "ping") {
+    handlePingCommand(interaction);
   }
 });
 
@@ -47,17 +50,18 @@ client.on(Events.ClientReady, () =>
 );
 
 async function main() {
-  const commands = [albumCommand];
-
+  const commands = [albumCommand, pingCommand];
   try {
     console.log("Started refreshing application (/) commands.");
-    /* Deletes Global commands
+    // Deletes Global commands
     await rest
-      .put(Routes.applicationCommands(CLIENT_ID), { body: [] })
+      .put(Routes.applicationCommands(CLIENT_ID), {
+        body: [],
+      })
       .then(() => console.log("Successfully deleted global commands"));
-      */
+    // Adds global commands
     await rest
-      .put(Routes.applicationGuildCommands(CLIENT_ID, GUILD_ID), {
+      .put(Routes.applicationCommands(CLIENT_ID), {
         body: commands,
       })
       .then(() => console.log("Succesfully added commands"));
@@ -92,7 +96,7 @@ client.on(Events.MessageReactionAdd, async (reaction, user) => {
 
   if (user.bot) return;
 
-  // if (reaction.message.type !== 20) return;
+  if (reaction.message.type !== 20) return;
 
   const userReactions = await reaction.message.reactions.cache.filter(
     (userReaction) =>

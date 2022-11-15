@@ -1,10 +1,13 @@
 import { SlashCommandBuilder } from "discord.js";
 
-module.exports = {
-  data: new SlashCommandBuilder()
-    .setName("ping")
-    .setDescription("Replies with Pong!"),
-  async execute(interaction) {
-    await interaction.reply("Pong!");
-  },
+const pingCommand = new SlashCommandBuilder()
+  .setName("ping")
+  .setDescription("Replies with Pong!");
+
+export const handlePingCommand = async (interaction) => {
+  interaction.reply("Pong!");
 };
+
+const pingCommandJSON = pingCommand.toJSON();
+
+export default pingCommandJSON;
