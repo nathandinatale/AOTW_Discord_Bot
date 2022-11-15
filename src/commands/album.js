@@ -18,8 +18,8 @@ const albumCommand = new SlashCommandBuilder()
   )
   .addStringOption((option) =>
     option
-      .setName("description")
-      .setDescription("Enter a brief description")
+      .setName("blurb")
+      .setDescription("Write a blurb for the album expressing your thoughts")
       .setRequired(true)
   )
   .addStringOption((option) =>
@@ -32,10 +32,19 @@ const albumCommand = new SlashCommandBuilder()
 const albumCommandJSON = albumCommand.toJSON();
 
 export const handleAlbumCommand = async (interaction) => {
-  const description = interaction.options.getString("description");
-  description
-    ? interaction.reply(`${description}`)
-    : interaction.reply("Something went wrong");
+  try {
+    const title = interaction.options.getString("title");
+    const artist = interaction.options.getString("artist");
+    const link = interaction.options.getString("link");
+    const blurb = interaction.options.getString("blurb");
+    await pingRole(interaction.channel);
+    interaction.reply({
+      content: `*${title}* - ${artist}\n\n${blurb} \n\n${link}`,
+    });
+  } catch (err) {
+    interaction.reply("Something went wrong");
+  }
+
   const message = await interaction.fetchReply();
   message.react("1️⃣"),
     message.react("2️⃣"),
@@ -57,6 +66,11 @@ export const handleAlbumCommand = async (interaction) => {
     interaction.user.id,
     interaction.user.username
   );
+};
+
+// have to ping seperately because interaction reply pings don't go through
+const pingRole = async (channel) => {
+  await channel.send("<@&757257690350092530>");
 };
 
 export const handleAlbumRating = (reaction, user) => {
