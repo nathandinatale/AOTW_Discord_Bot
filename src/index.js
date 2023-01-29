@@ -13,6 +13,8 @@ import albumCommand, {
   handleAlbumRating,
 } from "./commands/album.js";
 import pingCommand, { handlePingCommand } from "./commands/ping.js";
+import rateCommand from "./commands/rate.js";
+import * as firebaseClient from "./firebase.js";
 
 config();
 
@@ -34,13 +36,26 @@ const rest = new REST({ version: "10" }).setToken(TOKEN);
 
 client.login(TOKEN);
 
+// extra guard necessary to ensure interaction type safety
+client.on(Events.InteractionCreate, async (interaction) => {
+  if (!interaction.isAutocomplete()) return;
+  try {
+    await rateCommand.autocomplete(interaction);
+  } catch (error) {
+    console.error(error);
+  }
+});
+
 client.on(Events.InteractionCreate, async (interaction) => {
   if (!interaction.isChatInputCommand()) return;
   if (interaction.commandName === "album") {
     handleAlbumCommand(interaction);
   }
-  if (interaction.commandName == "ping") {
+  if (interaction.commandName === "ping") {
     handlePingCommand(interaction);
+  }
+  if (interaction.commandName === "rate") {
+    rateCommand.execute(interaction);
   }
 });
 
@@ -50,7 +65,7 @@ client.on(Events.ClientReady, () =>
 );
 
 async function main() {
-  const commands = [albumCommand, pingCommand];
+  const commands = [albumCommand, pingCommand, rateCommand];
   try {
     console.log("Started refreshing application (/) commands.");
     // Deletes Global commands

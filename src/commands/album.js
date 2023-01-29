@@ -74,11 +74,26 @@ const pingRole = async (channel) => {
 };
 
 export const handleAlbumRating = (reaction, user) => {
+  const converterMap = new Map();
+  converterMap.set("1️⃣", 1);
+  converterMap.set("2️⃣", 2);
+  converterMap.set("3️⃣", 3);
+  converterMap.set("4️⃣", 4);
+  converterMap.set("5️⃣", 5);
+  converterMap.set("6️⃣", 6);
+  converterMap.set("7️⃣", 7);
+  converterMap.set("8️⃣", 8);
+  converterMap.set("9️⃣", 9);
+  converterMap.set("🔟", 10);
+
+  const rating = converterMap.get(reaction.emoji.name);
+  if (!rating) return;
+
   firebaseClient.writeRatingData(
     reaction.message.id,
     user.id,
     user.username,
-    reaction.emoji.name
+    rating
   );
 
   return;
